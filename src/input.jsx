@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Import your CSS file for styling
+import './App.css'; // Styling uchun CSS faylini import qiling
 
 const RandomWordInput = () => {
   const [inputValue, setInputValue] = useState('');
@@ -17,16 +17,31 @@ const RandomWordInput = () => {
     'ko\'tarmoq', 'o\'tish', 'yugur'];
 
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * randomWords.length);
-    setPlaceholderWord(randomWords[randomIndex]);
+    const randomIndex = Math.floor(Math.random() * (randomWords.length - 15)); // 15 ta yoki undan ko'p so'z tanlash uchun
+    const selectedWords = randomWords.slice(randomIndex, randomIndex + 15); // Tanlangan so'zlar
+    const placeholder = addPunctuation(selectedWords); // Add punctuation to selected words
+    setPlaceholderWord(placeholder);
   }, []);
+
+  const addPunctuation = (words) => {
+    const punctuations = [',', '.', '!', '?'];
+    const punctuatedWords = words.map(() => {
+      const randomIndex = Math.floor(Math.random() * punctuations.length);
+      return punctuations[randomIndex];
+    });
+    return words.map((word, index) => {
+      return index === Math.floor(Math.random() * words.length) ? word + punctuatedWords[index] : word;
+    }).join(' ');
+  };
 
   const handleInput = (e) => {
     const value = e.target.value.toLowerCase();
     if (value === placeholderWord) {
       setInputValue('');
-      const randomIndex = Math.floor(Math.random() * randomWords.length);
-      setPlaceholderWord(randomWords[randomIndex]);
+      const randomIndex = Math.floor(Math.random() * (randomWords.length - 15));
+      const selectedWords = randomWords.slice(randomIndex, randomIndex + 15);
+      const placeholder = addPunctuation(selectedWords); // Add punctuation to selected words
+      setPlaceholderWord(placeholder);
     } else {
       setInputValue(value);
     }
@@ -35,13 +50,13 @@ const RandomWordInput = () => {
   return (
     <div className="random-word-input-container">
       <div className="placeholder-container">
-        <h1 className="random-word-placeholder">{placeholderWord}</h1>
+        <h1 className={inputValue === placeholderWord ? "random-word-placeholder-red" : "random-word-placeholder"}>{placeholderWord}</h1>
       </div>
       <textarea
         className="random-word-textarea"
         value={inputValue}
         onChange={handleInput}
-        placeholder={placeholderWord} // Placeholder tasodifiy so'zga mos keladi
+        placeholder={placeholderWord}
         rows={12}
         cols={150}
       />
