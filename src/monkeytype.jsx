@@ -1,57 +1,225 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom'; // Import ReactDOM
+import "./h.css"
 
-function MonkeytypeSimulator() {
-  const [text, setText] = useState('');
-  const [wordIndex, setWordIndex] = useState(0);
-  const [isStarted, setIsStarted] = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
-  const words = ['Bu', 'bir', 'misol', 'matni.', 'React', 'bilan', 'yozilgan'];
+const words = 'in one good real one not school set they state high life consider on and not come what also for set point can want as while with of order child about school thing never hold find order each too between program work end you home place around while place problem end begin interest while public or where see time those increase interest be give end think seem small as both another a child same eye you between way do who into again good fact than under very head become real possible some write know however late each that with because that place nation only for each change form consider we would interest with world so order or run more open that large write turn never over open each over change still old take hold need give by consider line only leave while what set up number part form want against great problem can because head so first this here would course become help year first end want both fact public long word down also long for without new turn against the because write seem line interest call not if line thing what work people way may old consider leave hold want life between most place may if go who need fact such program where which end off child down change to from people high during people find to however into small new general it do that could old for last get another hand much eye great no work and with but good there last think can around use like number never since world need what we around part show new come seem while some and since still small these you general which seem will place come order form how about just also they with state late use both early too lead general seem few out like might under if ask while such interest feel word right again how about system such between late want fact up problem stand new say move a lead small however large public out by eye here over so be way use like say people work for since interest so face order school good not most run problem group run she late other problem real form what just high no man do under would to each too end point give number child through so this large see get form also all those course to work during about he plan still so like down he look down where course at who plan way since come against he all who at world because while so few last these mean take house who old way large no first too now off would in this course present order home public school back own little about he develop of do over help day house stand present another by few come that down last or use say take would each even govern play around back under some line think she even when from do real problem between long as there school do as mean to all on other good may from might call world thing life turn of he look last problem after get show want need thing old other during be again develop come from consider the now number say life interest to system only group world same state school one problem between for turn run at very against eye must go both still all a as so after play eye little be those should out after which these both much house become both school this he real and may mean time by real number other as feel at end ask plan come turn by all head increase he present increase use stand after see order lead than system here ask in of look point little too without each for both we come world much own set we right off long those stand go both but under now must real general then before with much those at no of we only back these person plan from run new as own take early just increase only look open follow get that on system the mean plan man over it possible if most late line would first without real hand say turn point small set at in system however to be home show new again come under because about show face child know person large program how over could thing from out world while nation stand part run have look what many system order some one program you great could write day do he any also where child late face eye run still again on by as call high the must by late little mean never another seem to leave because for day against public long number word about after much need open change also'.split(' ');
+const gameTime = 30 * 1000;
 
-  const handleInputChange = (e) => {
-    setText(e.target.value);
+const HippoType = () => {
+  const [timer, setTimer] = useState(null);
+  const [gameStart, setGameStart] = useState(null);
+
+  const wordsRef = useRef(null);
+
+  useEffect(() => {
+    newGame();
+  }, []);
+
+  const randomWord = () => {
+    const randomIndex = Math.ceil(Math.random() * words.length);
+    return words[randomIndex - 1];
   };
 
-  const handleStart = () => {
-    setIsStarted(true);
-    setStartTime(new Date());
+  const formatWord = (word) => {
+    const letters = word.split('').map((letter, index) => (
+      <span key={index} className="letter">{letter}</span>
+    ));
+  
+    return (
+      <div className="word">
+        {letters}
+      </div>
+    );
+  };
+  
+
+  const newGame = () => {
+    const wordsElement = wordsRef.current;
+    if (!wordsElement) {
+      return; // Agar so'z elementi mavjud emas bo'lsa chiqish
+    }
+  
+    // Avvalgi ma'lumotlarni tozalash
+    wordsElement.innerHTML = '';
+  
+    // So'zlar generatsiya qilinadi va qo'shiladi
+    const words = [];
+    for (let i = 0; i < 200; i++) {
+      words.push(formatWord(randomWord()));
+    }
+    ReactDOM.render(words, wordsElement); // ReactDOM yordamida so'zlarni render qilish
+  
+    const firstWord = document.querySelector('.word');
+    if (firstWord) {
+      addClass(firstWord, 'current');
+      const firstLetter = firstWord.querySelector('.letter');
+      if (firstLetter) {
+        addClass(firstLetter, 'current');
+      }
+    }
+    document.getElementById('info').innerHTML = gameTime / 1000 + '';
+    setTimer(null);
+  };
+  
+
+  const getWpm = () => {
+    const words = [...document.querySelectorAll('.word')];
+    const lastTypedWord = document.querySelector('.word.current');
+    const lastTypedWordIndex = words.indexOf(lastTypedWord) + 1;
+    const typedWords = words.slice(0, lastTypedWordIndex);
+    const correctWords = typedWords.filter((word) => {
+      const letters = [...word.children];
+      const incorrectLetters = letters.filter((letter) => letter.className.includes('incorrect'));
+      const correctLetters = letters.filter((letter) => letter.className.includes('correct'));
+      return incorrectLetters.length === 0 && correctLetters.length === letters.length;
+    });
+    return (correctWords.length / gameTime) * 60000;
   };
 
-  const handleEnd = () => {
-    setEndTime(new Date());
-    setIsStarted(false);
+  const gameOver = () => {
+    clearInterval(timer);
+    addClass(document.getElementById('game'), 'over');
+    const result = getWpm();
+    document.getElementById('info').innerHTML = `WPM: ${result}`;
   };
 
-  const calculateWPM = () => {
-    const elapsedTimeInSeconds = (endTime - startTime) / 1000;
-    const numberOfWords = text.trim().split(/\s+/).length;
-    return Math.round((numberOfWords / elapsedTimeInSeconds) * 60);
+  const handleKeyUp = (ev) => {
+    const key = ev.key;
+    const currentWord = document.querySelector('.word.current');
+    if (!currentWord) {
+        return;
+    }
+
+    const currentLetter = currentWord.querySelector('.letter.current');
+    const expected = currentLetter?.innerHTML || ' ';
+    const isLetter = key.length === 1 && key !== ' ';
+    const isSpace = key === ' ';
+    const isBackspace = key === 'Backspace';
+    const isFirstLetter = currentLetter === currentWord.firstChild;
+
+    if (document.querySelector('#game.over')) {
+      return;
+    }
+
+    console.log({ key, expected });
+
+    if (!timer && isLetter) {
+      setTimer(
+        setInterval(() => {
+          if (!gameStart) {
+            setGameStart(new Date().getTime());
+          }
+          const currentTime = new Date().getTime();
+          const msPassed = currentTime - gameStart;
+          const sPassed = Math.round(msPassed / 1000);
+          const sLeft = Math.round(gameTime / 1000 - sPassed);
+          if (sLeft <= 0) {
+            gameOver();
+            return;
+          }
+          document.getElementById('info').innerHTML = sLeft + '';
+        }, 1000)
+      );
+    }
+
+    if (isLetter) {
+      if (currentLetter) {
+        addClass(currentLetter, key === expected ? 'correct' : 'incorrect');
+        removeClass(currentLetter, 'current');
+        if (currentLetter.nextSibling) {
+          addClass(currentLetter.nextSibling, 'current');
+        }
+      } else {
+        const incorrectLetter = document.createElement('span');
+        incorrectLetter.innerHTML = key;
+        incorrectLetter.className = 'letter incorrect extra';
+        currentWord.appendChild(incorrectLetter);
+      }
+    }
+
+    if (isSpace) {
+      if (expected !== ' ') {
+        const lettersToInvalidate = [...document.querySelectorAll('.word.current .letter:not(.correct)')];
+        lettersToInvalidate.forEach((letter) => {
+          addClass(letter, 'incorrect');
+        });
+      }
+      removeClass(currentWord, 'current');
+      addClass(currentWord.nextSibling, 'current');
+      if (currentLetter) {
+        removeClass(currentLetter, 'current');
+      }
+      addClass(currentWord.nextSibling.firstChild, 'current');
+    }
+
+    if (isBackspace) {
+      if (currentLetter && isFirstLetter) {
+        removeClass(currentWord, 'current');
+        addClass(currentWord.previousSibling, 'current');
+        removeClass(currentLetter, 'current');
+        addClass(currentWord.previousSibling.lastChild, 'current');
+        removeClass(currentWord.previousSibling.lastChild, 'incorrect');
+        removeClass(currentWord.previousSibling.lastChild, 'correct');
+      }
+      if (currentLetter && !isFirstLetter) {
+        removeClass(currentLetter, 'current');
+        addClass(currentLetter.previousSibling, 'current');
+        removeClass(currentLetter.previousSibling, 'incorrect');
+        removeClass(currentLetter.previousSibling, 'correct');
+      }
+      if (!currentLetter) {
+        addClass(currentWord.lastChild, 'current');
+        removeClass(currentWord.lastChild, 'incorrect');
+        removeClass(currentWord.lastChild, 'correct');
+      }
+    }
+
+    if (currentWord.getBoundingClientRect().top > 250) {
+      const words = document.getElementById('words');
+      const margin = parseInt(words.style.marginTop || '0px');
+      words.style.marginTop = margin - 35 + 'px';
+    }
+
+    const nextLetter = document.querySelector('.letter.current');
+    const nextWord = document.querySelector('.word.current');
+    const cursor = document.getElementById('cursor');
+    cursor.style.top = (nextLetter || nextWord).getBoundingClientRect().top + 2 + 'px';
+    cursor.style.left = (nextLetter || nextWord).getBoundingClientRect()[nextLetter ? 'left' : 'right'] + 'px';
+  };
+
+  const addClass = (el, name) => {
+    el.className += ' ' + name;
+  };
+
+  const removeClass = (el, name) => {
+    el.className = el.className.replace(name, '');
   };
 
   return (
-    <div>
-      <h1>Monkeytype Ga O'xshash Yozuv Sinovchisi</h1>
-      <textarea
-        value={text}
-        onChange={handleInputChange}
-        placeholder="Matnni shu yerga yozing..."
-        rows={5}
-        cols={50}
-        disabled={!isStarted}
-      />
-      {!isStarted && (
-        <button onClick={handleStart}>Boshlash</button>
-      )}
-      {isStarted && (
-        <button onClick={handleEnd}>Tugatish</button>
-      )}
-      {endTime && (
-        <div>
-          <p>Yozuv tezligi: {calculateWPM()} so'z/daqiqa</p>
+    <main>
+      <h1>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+          <path d="M584.2 96.36c-28.88-1.701-54.71 17.02-79.74 26.49C490 88.22 455.9 64 416 64c-11.25 0-22 2.252-32 5.877V56C384 42.75 373.2 32 360 32h-16C330.8 32 320 42.75 320 56v49C285.1 79.62 241.2 64 192 64C85.1 64 0 135.6 0 224v232C0 469.3 10.75 480 24 480h48C85.25 480 96 469.3 96 456v-62.87C128.4 407.5 166.8 416 208 416s79.63-8.492 112-22.87V456c0 13.25 10.75 24 24 24h48c13.25 0 24-10.75 24-24V288h128v32c0 8.837 7.163 16 16 16h32c8.837 0 16-7.163 16-16V288c17.62 0 32-14.38 32-32l-.0001-96.07C639.1 127.8 616.4 98.25 584.2 96.36zM447.1 176c-8.875 0-16-7.125-16-16S439.1 144 448 144s16 7.125 16 16S456.9 176 447.1 176z"/>
+        </svg>
+        HippoType
+      </h1>
+      <div id="header">
+        <div id="info"></div>
+        <div id="buttons">
+          <button id="newGameBtn" onClick={newGame}>
+            New game
+          </button>
         </div>
-      )}
-    </div>
+      </div>
+      <div id="game" tabIndex="0" onKeyUp={handleKeyUp}>
+        <div id="words" ref={wordsRef}></div>
+        <div id="cursor"></div>
+        <div id="focus-error">Yozish uchun shu yerni bosing</div>
+      </div>
+    </main>
   );
-}
+};
 
-export default MonkeytypeSimulator;
+
+
+export default HippoType;
