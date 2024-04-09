@@ -106,13 +106,13 @@ function Test() {
         <main>
             <h1>Type racer</h1>
             <div id="header">
-                <div id="info">Qolgan vaqt: {timeLeft} soniya | WPM: {calculateWPM()}</div>
+                <div id="info">Kalan Süre: {timeLeft} sn | WPM: {calculateWPM()}</div>
                 <div id="buttons">
                     {!isStarted && (
                         <>
-                            <button onClick={startGame}>o'yinni boshlash</button>
+                            <button onClick={startGame}>oyin boshlash</button>
                             <span style={{ margin: '0 10px' }}></span>
-                            <button onClick={handleNewGameClick}>refresh</button>
+                            <button onClick={handleNewGameClick}>qaytadan</button>
                         </>
                     )}
                 </div>
