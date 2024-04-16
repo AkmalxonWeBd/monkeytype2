@@ -99,3 +99,55 @@ div.word{
 #game.over #focus-error {
     display: none;
 }
+
+/* h.css */
+
+@media screen and (max-width: 600px) {
+    thead,
+    tbody {
+      display: block;
+    }
+  
+    tbody {
+      max-height: 150px;
+      overflow-y: auto;
+    }
+  
+    th, td {
+      width: 100%;
+    }
+  }
+  /* Telefon o'lchamlariga mos ravishda o'zgarishlar */
+@media (max-width: 600px) {
+    main {
+        width: 90%;
+        margin: 20px auto;
+        font-size: 1.2rem;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    #header {
+        display: block;
+        margin-bottom: 20px;
+    }
+    #buttons {
+        text-align: center;
+    }
+    #info {
+        margin-bottom: 10px;
+    }
+    button {
+        font-size: 1rem;
+        padding: 8px 16px;
+        margin-right: 10px;
+    }
+    div#game {
+        line-height: 25px;
+        height: auto;
+    }
+    #cursor {
+        height: 30px;
+        border-radius: 8px;
+    }
+}

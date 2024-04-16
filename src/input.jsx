@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import "./h.css"
 
 function Test() {
     const [randomWords, setRandomWords] = useState('');
@@ -78,7 +79,7 @@ function Test() {
     const endGame = () => {
         setIsStarted(false);
         const wpm = calculateWPM();
-        if (wpm > highestWPM) {
+        if (wpm >= highestWPM) {
             setHighestWPM(wpm);
             alert(`Oyin tugadi! Siz toplagan WPM: ${wpm}. Eng yuqori WPM: ${highestWPM}`);
         } else {
@@ -126,13 +127,23 @@ function Test() {
                 {inputError && <p style={{ color: 'white' }}>Bu yerda so'z qolmadi iltimos o'yinni qaytadan boshlang <br /> ≡(▔﹏▔)≡</p>}
             </div>
             <input id="cursor" type="text" onChange={handleInputChange} onKeyPress={handleInputKeyPress} value={currentInput} autoFocus />
+            <thead>
+                <th>o'yin sozlamalari</th>
+                <th>tanlang</th>
+            </thead>
+            <tbody>
+                <th>
+                    <label htmlFor="numWords">So'zlar soni:</label>
+                    <label htmlFor="gameDuration">O'yin Davomiyligi(sec):</label>
+                </th>
+                <th>
+                    <input type="number" id="numWords" value={numWords} onChange={(e) => setNumWords(e.target.value)} />
+                    <input type="number" id="gameDuration" value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} />
+                </th>
+            </tbody>
             <div>
-                <label htmlFor="numWords">So'zlar soni:</label>
-                <input type="number" id="numWords" value={numWords} onChange={(e) => setNumWords(e.target.value)} />
-            </div>
-            <div>
-                <label htmlFor="gameDuration">O'yin Davomiyligi(sec):</label>
-                <input type="number" id="gameDuration" value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} />
+                <h1></h1>
+                <h1></h1>
             </div>
         </main>
     );
